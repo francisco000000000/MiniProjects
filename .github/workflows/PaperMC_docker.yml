@@ -3,25 +3,24 @@ name: PaperMC in Docker
 on:
   workflow_dispatch:
     inputs:
-      # Input para o nome da versão base
       version_name:
-        description: 'Nome da versão base da imagem (ex: v1.0.0, 1.2.3)'
+        description: 'Nome da versão para o release (ex: v1.0.0, 1.2.3)'
         required: true
         default: 'dev'
-
-      # Input para perguntar se deve também atribuir como 'latest'
       tag_as_latest:
-        description: 'Atribuir esta imagem também como "latest"?'
+        description: 'Atribuir a tag "latest" a esta imagem?'
         type: boolean
         required: false
-        default: true  
+        default: true 
 
 jobs:
+
   build:
+    
     runs-on: ubuntu-latest
     permissions:
-      contents: read 
-      packages: write 
+      contents: read
+      packages: write
 
     steps:
     - uses: actions/checkout@v4
@@ -32,38 +31,40 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-
-    # Passo 2: Construir e etiquetar a imagem com o nome do GitHub Packages
     - name: Build and tag the Docker image for GitHub Packages
       run: |
         IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/paper_docker
         
+        # Pega os primeiros 8 caracteres do SHA do commit
         SHA_SHORT=$(echo ${{ github.sha }} | cut -c1-8)
         
-        VERSION_TAG="${{ github.event.inputs.version_name }}-$SHA_SHORT"
-
-        echo "Building image with version tag: $VERSION_TAG"
+        # A imagem terá SEMPRE uma tag com o SHA curto
+        # E SEMPRE terá uma tag com o nome da versão fornecido pelo usuário
+        echo "Building image with SHA tag: $SHA_SHORT and release tag: ${{ github.event.inputs.version_name }}"
 
         docker build ./Paper_Docker \
           --file ./Paper_Docker/Dockerfile \
-          --tag $IMAGE_NAME:$VERSION_TAG
+          --tag $IMAGE_NAME:$SHA_SHORT \
+          --tag $IMAGE_NAME:${{ github.event.inputs.version_name }}
 
         # Se o input 'tag_as_latest' for verdadeiro, também etiqueta como 'latest'
+        # A tag 'latest' apontará para a versão do release (version_name)
         if [ "${{ github.event.inputs.tag_as_latest }}" == "true" ]; then
-          echo "Also tagging as latest."
-          docker tag $IMAGE_NAME:$VERSION_TAG $IMAGE_NAME:latest
+          echo "Also tagging as latest, pointing to ${{ github.event.inputs.version_name }}."
+          docker tag $IMAGE_NAME:${{ github.event.inputs.version_name }} $IMAGE_NAME:latest
         fi
 
     - name: Push the Docker image to GitHub Packages
       run: |
         IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/paper_docker
         
-        # Recalcula a tag da versão para o push (sempre com SHA)
         SHA_SHORT=$(echo ${{ github.sha }} | cut -c1-8)
-        VERSION_TAG="${{ github.event.inputs.version_name }}-$SHA_SHORT"
 
-        echo "Pushing image with version tag: $VERSION_TAG"
-        docker push $IMAGE_NAME:$VERSION_TAG
+        echo "Pushing SHA tag: $SHA_SHORT"
+        docker push $IMAGE_NAME:$SHA_SHORT
+
+        echo "Pushing release tag: ${{ github.event.inputs.version_name }}"
+        docker push $IMAGE_NAME:${{ github.event.inputs.version_name }}
 
         # Se o input 'tag_as_latest' for verdadeiro, também envia a tag 'latest'
         if [ "${{ github.event.inputs.tag_as_latest }}" == "true" ]; then
