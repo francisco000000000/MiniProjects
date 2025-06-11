@@ -1,0 +1,43 @@
+name: PaperMC in Docker
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # Passo 2: Construir e etiquetar a imagem com o nome do GitHub Packages
+    - name: Build and tag the Docker image for GitHub Packages
+      run: |
+        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/paper_docker
+        VERSION=$(echo ${{ github.sha }} | cut -c1-8) # Usa os primeiros 8 caracteres do SHA do commit
+        
+        docker build ./paper_docker \
+          --file ./Paper_Docker/Dockerfile \
+          --tag $IMAGE_NAME:latest \
+          --tag $IMAGE_NAME:$VERSION
+
+    # Passo 3: Enviar a imagem para o GitHub Packages
+    - name: Push the Docker image to GitHub Packages
+      run: |
+        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/paper_docker
+        VERSION=$(echo ${{ github.sha }} | cut -c1-8)
+
+        docker push $IMAGE_NAME:latest
+        docker push $IMAGE_NAME:$VERSION
