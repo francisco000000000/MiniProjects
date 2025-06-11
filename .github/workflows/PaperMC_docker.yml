@@ -28,7 +28,7 @@ jobs:
         IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/paper_docker
         VERSION=$(echo ${{ github.sha }} | cut -c1-8) # Usa os primeiros 8 caracteres do SHA do commit
         
-        docker build ./paper_docker \
+        docker build ./Paper_Docker \
           --file ./Paper_Docker/Dockerfile \
           --tag $IMAGE_NAME:latest \
           --tag $IMAGE_NAME:$VERSION
