@@ -1,4 +1,4 @@
-var locale={
+locale={
     lang:Core.bundle.getLocale().toString()||"en_US", //if english, returns "en_US".
     data:{
         en_US:{superSpeed:"Super Speed",enabled:"[green]Enabled",disabled:"[red]Disabled",speed:"[cyan]Speed:", speedDown:"Decrease Speed", speedUp:"Increase Speed"},
