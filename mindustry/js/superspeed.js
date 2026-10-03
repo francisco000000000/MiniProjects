@@ -26,10 +26,9 @@ if(typeof superSpeedUpdate!="undefined"){
     TabOpen=function(textField){
         return !superSpeed||textField;
     };
-
-    superSpeedLastUpdate=0; //global
-   
 }
+
+    superSpeedLastUpdate=0;
 superSpeedUpdate=new Packages.arc.ApplicationListener({
     update:function(){
         var textField=Core.scene.getKeyboardFocus() instanceof Packages.arc.scene.ui.TextField;
