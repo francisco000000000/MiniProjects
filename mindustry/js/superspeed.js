@@ -18,9 +18,9 @@ if(typeof superSpeedUpdate!="undefined"){
     eval(new java.lang.String(new java.net.URL(downloadRepo+"locale.js").openStream().readAllBytes(),"UTF-8").toString());
 
     //Keybinds
-    var superSpeedKey=KeyBind.add(locale.get("superSpeed"),KeyCode.z,locale.get("superSpeed"));
-    var speedDownKey=KeyBind.add(locale.get("speedDown"),KeyCode.comma,locale.get("superSpeed"));
-    var speedUpKey=KeyBind.add(locale.get("speedUp"),KeyCode.period,locale.get("superSpeed"));
+    superSpeedKey=KeyBind.add(locale.get("superSpeed"),KeyCode.z,locale.get("superSpeed"));
+    speedDownKey=KeyBind.add(locale.get("speedDown"),KeyCode.comma,locale.get("superSpeed"));
+    speedUpKey=KeyBind.add(locale.get("speedUp"),KeyCode.period,locale.get("superSpeed"));
 
     //Check if Super Speed is disabled or a TextField has focus
     function TabOpen(textField){
