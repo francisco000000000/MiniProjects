@@ -22,13 +22,78 @@ if(typeof superSpeedUpdate!="undefined"){
     speedDownKey=KeyBind.add(locale.get("speedDown"),KeyCode.comma,locale.get("superSpeed"));
     speedUpKey=KeyBind.add(locale.get("speedUp"),KeyCode.period,locale.get("superSpeed"));
 
+    //Buttons
+    speedTable=new Packages.arc.scene.ui.layout.Table();
+    speedButtons=new Packages.arc.scene.ui.layout.Table();
+
+    speedMinus=new Packages.arc.scene.ui.TextButton("-");
+    speedToggle=new Packages.arc.scene.ui.TextButton("E");
+    speedPlus=new Packages.arc.scene.ui.TextButton("+");
+
+    speedSize=Packages.arc.scene.ui.layout.Scl.scl(55);
+
+    speedButtons.add(speedMinus).size(speedSize).pad(3);
+    speedButtons.add(speedToggle).size(speedSize).pad(3);
+    speedButtons.add(speedPlus).size(speedSize).pad(3);
+
+    speedTable.add(speedButtons);
+    Core.scene.add(speedTable);
+    speedTable.pack();
+
+    speedTable.setPosition(
+        Core.graphics.getWidth()-speedTable.getWidth()-20,
+        20
+    );
+
+    speedListener=new JavaAdapter(Packages.arc.scene.event.InputListener,{
+        touchDown:function(e,x,y,pointer,button){
+            this.ox=x;
+            this.oy=y;
+            return true;
+        },
+        touchDragged:function(e,x,y,pointer){
+            var nx=speedTable.x+x-this.ox;
+            var ny=speedTable.y+y-this.oy;
+
+            speedTable.x=Math.max(0,Math.min(nx,Core.graphics.getWidth()-speedTable.getWidth()));
+            speedTable.y=Math.max(0,Math.min(ny,Core.graphics.getHeight()-speedTable.getHeight()));
+        }
+    });
+
+    speedTable.addListener(speedListener);
+
+    speedToggle.clicked(function(){
+        superSpeed=!superSpeed;
+        Vars.ui.showInfoToast(
+            locale.get("superSpeed")+": "+
+            (superSpeed?locale.get("enabled"):locale.get("disabled")),
+            2
+        );
+    });
+
+    speedMinus.clicked(function(){
+        speedMultiplier=Math.max(1,speedMultiplier-1);
+        Vars.ui.showInfoToast(
+            locale.get("speed")+" "+speedMultiplier+"x",
+            2
+        );
+    });
+
+    speedPlus.clicked(function(){
+        speedMultiplier++;
+        Vars.ui.showInfoToast(
+            locale.get("speed")+" "+speedMultiplier+"x",
+            2
+        );
+    });
+
     //Check if Super Speed is disabled or a TextField has focus
     TabOpen=function(textField){
         return !superSpeed||textField;
     };
 }
 
-    superSpeedLastUpdate=0;
+superSpeedLastUpdate=0;
 superSpeedUpdate=new Packages.arc.ApplicationListener({
     update:function(){
         var textField=Core.scene.getKeyboardFocus() instanceof Packages.arc.scene.ui.TextField;
