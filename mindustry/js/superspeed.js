@@ -23,11 +23,11 @@ if(typeof superSpeedUpdate!="undefined"){
     speedUpKey=KeyBind.add(locale.get("speedUp"),KeyCode.period,locale.get("superSpeed"));
 
     //Check if Super Speed is disabled or a TextField has focus
-    function TabOpen(textField){
+    TabOpen=function(textField){
         return !superSpeed||textField;
-    }
+    };
 
-    var superSpeedLastUpdate=0;
+    superSpeedLastUpdate=0; //global
    
 }
 superSpeedUpdate=new Packages.arc.ApplicationListener({
